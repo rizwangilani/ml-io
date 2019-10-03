@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+declare -r _valid_dependencies=(
+    abseil
+    dlpack
+    fmt
+    gtest
+    protobuf
+    pybind11
+    tbb)
+
+function _print_usage
+{
+    local _dep
+
+    printf "Usage: %s [all|DEPENDENCY...]\n\nDependencies:\n" "$(basename "$0")"
+
+    for _dep in "${_valid_dependencies[@]}"; do
+        printf "  %s\n" "$_dep"
+    done
+}
+
+function _exit_usage
+{
+    _print_usage
+
+    exit 0
+}
+
+function _exit_usage_error
+{
+    _print_usage >&2
+
+    exit 1
+}
+
+function _check_dependency
+{
+    local _dep
+
+    for _dep in "${_valid_dependencies[@]}"; do
+        if [[ $1 == "$_dep" ]]; then
+            return
+        fi
+    done
+
+    printf "%s is not a valid dependency name.\n\n" "$1" >&2
+
+    _exit_usage_error
+}
+
+function _check_dependencies
+{
+    local _dep
+
+    for _dep; do
+        _check_dependency "$_dep"
+    done
+}
+
+function _build_dependencies
+{
+    local _bin_dir
+    local _num_proc
+    local _dep
+
+    _bin_dir=$(cd "$(dirname "$0")" && pwd)/../third-party/build
+
+    mkdir -p "$_bin_dir" && cd "$_bin_dir"
+
+    # Determine the number of processor cores.
+    if [[ $(uname -s) == Darwin ]]; then
+        _num_proc=$(sysctl -n hw.ncpu)
+    else
+        _num_proc=$(nproc)
+    fi
+
+    cmake -G "Unix Makefiles" ..
+
+    for _dep; do
+        cmake --build . --target "$_dep" -- -j "$_num_proc"
+    done
+}
+
+function _main
+{
+    local _deps
+
+    if [[ $# == 0 ]]; then
+        _exit_usage_error
+    fi
+
+    if [[ $# == 1 && ($1 == -h || $1 == --help) ]]; then
+        _exit_usage
+    fi
+
+    if [[ $# == 1 && $1 == all ]]; then
+        _deps=("${_valid_dependencies[@]}")
+    else
+        _deps=("$@")
+    fi
+
+    _check_dependencies "${_deps[@]}"
+    _build_dependencies "${_deps[@]}"
+}
+
+_main "$@"
