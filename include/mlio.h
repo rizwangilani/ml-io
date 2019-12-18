@@ -18,6 +18,7 @@
 #include "mlio/config.h"                                 // IWYU pragma: export
 #include "mlio/cpu_array.h"                              // IWYU pragma: export
 #include "mlio/csv_reader.h"                             // IWYU pragma: export
+#include "mlio/text_line_reader.h"                       // IWYU pragma: export
 #include "mlio/data_reader.h"                            // IWYU pragma: export
 #include "mlio/data_reader_base.h"                       // IWYU pragma: export
 #include "mlio/data_reader_error.h"                      // IWYU pragma: export
