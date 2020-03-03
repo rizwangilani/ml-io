@@ -40,6 +40,7 @@ option(BUILD_SHARED_LIBS "If set, builds as a shared library." ON)
 option(MLIO_INCLUDE_LIB "If set, generates build target for the library." ON)
 option(MLIO_INCLUDE_CONTRIB "If set, generates build target for the contrib library.")
 option(MLIO_INCLUDE_PYTHON_EXTENSION "If set, generates build target for the Python C extension.")
+option(MLIO_BUILD_IMAGE_READER "If set, builds the image reader." OFF)
 
 cmake_dependent_option(
     MLIO_INCLUDE_ARROW_INTEGRATION "If set, generates build target for the Apache Arrow integration." OFF
@@ -300,6 +301,10 @@ if(MLIO_INCLUDE_LIB)
 
     if(MLIO_INCLUDE_TESTS)
         find_package(GTest REQUIRED)
+    endif()
+
+    if(MLIO_BUILD_IMAGE_READER)
+        find_package(OpenCV 4.0 REQUIRED core imgproc imgcodecs)
     endif()
 else()
     find_package(mlio ${PROJECT_VERSION} REQUIRED CONFIG)

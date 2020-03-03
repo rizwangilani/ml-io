@@ -116,6 +116,13 @@ target_link_libraries(mlio
         absl::strings dlpack::dlpack fmt::fmt protobuf::libprotobuf TBB::tbb
 )
 
+if(MLIO_BUILD_IMAGE_READER)
+    target_link_libraries(mlio
+        PRIVATE
+            opencv_core opencv_imgcodecs opencv_imgproc
+    )
+endif()
+
 target_link_libraries(mlio
     PRIVATE
         Iconv::Iconv Threads::Threads ZLIB::ZLIB
